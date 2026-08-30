@@ -1275,5 +1275,8 @@ message_recu = data.get("message", "")
 reponse_bot = repondre(message_recu)
 return jsonify({"reponse": reponse_bot})
 
-if name == "main":
-app.run(host="0.0.0.0", port=5000, debug=True)
+
+
+ if __name__ == "__main__":
+  port = int(os.environ.get("PORT", 5000))
+  app.run(host="0.0.0.0", port=port, debug=False)
