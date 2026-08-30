@@ -52,7 +52,7 @@ data = {
 "electromagnetisme": ELECTROMAGNETISME,
 "cinetique": CINETIQUE,
 "quantique": QUANTIQUE,
-"user_stats": user_stats,
+"user_stats": user_stats, 
 }
 with open(FICHIER_DATA, "w") as f:
 json.dump(data, f, indent=4)
