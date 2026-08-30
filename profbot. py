@@ -1,0 +1,1279 @@
+"""
+PROFBOT ULTIME - ARCHITECTURE SCIENTIFIQUE TOTALE & EXHAUSTIVE (V14)
+Description : Moteur interactif universel de physique, chimie, thermodynamique,
+électromagnétisme, mécanique quantique, cinétique et histoire des sciences.
+Contient l'intégralité des bases de données sans troncature.
+"""
+
+import json
+import math
+import os
+import random
+from datetime import datetime
+from flask import Flask, jsonify, request
+
+app = Flask(name)
+
+FICHIER_DATA = "profbot_v14_monstre_absolu.json"
+
+===== STRUCTURES DE DONNÉES GLOBALES MASSIVES =====
+TABLEAU = {}
+HISTOIRE = []
+SAVANTS = {}
+PARTICULES = {}
+THERMODYNAMIQUE = {}
+ELECTROMAGNETISME = {}
+CINETIQUE = {}
+QUANTIQUE = {}
+CONSTANTES_PHYSIQUES = {}
+BADGES = {}
+
+user_stats = {
+"meilleur_score": 0,
+"score_actuel": 0,
+"total_questions": 0,
+"parties_jouees": 0,
+"badges_debloques": [],
+"historique_scores": [],
+}
+
+mode_interro = False
+quiz_actif = None
+pool_questions_restantes = []
+objectif_interro = 50
+
+def sauvegarder():
+data = {
+"tableau": TABLEAU,
+"histoire": HISTOIRE,
+"savants": SAVANTS,
+"particules": PARTICULES,
+"thermodynamique": THERMODYNAMIQUE,
+"electromagnetisme": ELECTROMAGNETISME,
+"cinetique": CINETIQUE,
+"quantique": QUANTIQUE,
+"user_stats": user_stats,
+}
+with open(FICHIER_DATA, "w") as f:
+json.dump(data, f, indent=4)
+print("💾 Sauvegarde intégrale du monstre absolu réussie !")
+
+def charger_sauvegarde():
+global TABLEAU, HISTOIRE, SAVANTS, PARTICULES, THERMODYNAMIQUE
+global ELECTROMAGNETISME, CINETIQUE, QUANTIQUE, user_stats
+if os.path.exists(FICHIER_DATA):
+with open(FICHIER_DATA, "r") as f:
+data = json.load(f)
+TABLEAU = data.get("tableau", {})
+HISTOIRE = data.get("histoire", [])
+SAVANTS = data.get("savants", {})
+PARTICULES = data.get("particules", {})
+THERMODYNAMIQUE = data.get("thermodynamique", {})
+ELECTROMAGNETISME = data.get("electromagnetisme", {})
+CINETIQUE = data.get("cinetique", {})
+QUANTIQUE = data.get("quantique", {})
+user_stats = data.get(
+"user_stats",
+{
+"meilleur_score": 0,
+"score_actuel": 0,
+"total_questions": 0,
+"parties_jouees": 0,
+"badges_debloques": [],
+"historique_scores": [],
+},
+)
+print(
+f"✅ Données chargées : {len(TABLEAU)} éléments, {len(HISTOIRE)}"
+f" jalons historiques, {len(SAVANTS)} savants."
+)
+else:
+print("📝 Initialisation de la base de données universelle absolue V14.")
+
+===== CHARGEMENT EXHAUSTIF DES MODULES =====
+def initialiser_base_absolue():
+global TABLEAU, HISTOIRE, SAVANTS, PARTICULES, THERMODYNAMIQUE
+global ELECTROMAGNETISME, CINETIQUE, QUANTIQUE, CONSTANTES_PHYSIQUES, BADGES
+
+charger_sauvegarde()
+
+Constantes fondamentales
+CONSTANTES_PHYSIQUES = {
+"c": 299792458, # Vitesse de la lumière dans le vide (m/s)
+"h": 6.62607015e-34, # Constante de Planck (J.s)
+"hbar": 1.054571817e-34, # Constante de Planck réduite (J.s)
+"G": 6.67430e-11, # Constante gravitationnelle (m^3.kg^-1.s^-2)
+"k_b": 1.380649e-23, # Constante de Boltzmann (J/K)
+"na": 6.02214076e23, # Nombre d'Avogadro (mol^-1)
+"e": 1.602176634e-19, # Charge élémentaire (C)
+"m_e": 9.1093837e-31, # Masse de l'électron (kg)
+"m_p": 1.67262192369e-27, # Masse du proton (kg)
+}
+
+1. LES 118 ÉLÉMENTS CHIMIQUES DU TABLEAU PÉRIODIQUE (INTÉGRALITÉ)
+elements_complets = {
+"h": {
+"nom": "Hydrogène",
+"num": 1,
+"masse": 1.008,
+"famille": "Non-métal",
+},
+"he": {
+"nom": "Hélium",
+"num": 2,
+"masse": 4.002,
+"famille": "Gaz noble",
+},
+"li": {
+"nom": "Lithium",
+"num": 3,
+"masse": 6.94,
+"famille": "Métal alcalin",
+},
+"be": {
+"nom": "Béryllium",
+"num": 4,
+"masse": 9.01,
+"famille": "Alcalino-terreux",
+},
+"b": {"nom": "Bore", "num": 5, "masse": 10.81, "famille": "Métalloïde"},
+"c": {
+"nom": "Carbone",
+"num": 6,
+"masse": 12.01,
+"famille": "Non-métal",
+},
+"n": {"nom": "Azote", "num": 7, "masse": 14.00, "famille": "Non-métal"},
+"o": {"nom": "Oxygène", "num": 8, "masse": 15.99, "famille": "Non-métal"},
+"f": {"nom": "Fluor", "num": 9, "masse": 18.99, "famille": "Halogène"},
+"ne": {
+"nom": "Néon",
+"num": 10,
+"masse": 20.17,
+"famille": "Gaz noble",
+},
+"na": {
+"nom": "Sodium",
+"num": 11,
+"masse": 22.99,
+"famille": "Métal alcalin",
+},
+"mg": {
+"nom": "Magnésium",
+"num": 12,
+"masse": 24.30,
+"famille": "Alcalino-terreux",
+},
+"al": {
+"nom": "Aluminium",
+"num": 13,
+"masse": 26.98,
+"famille": "Métal pauvre",
+},
+"si": {
+"nom": "Silicium",
+"num": 14,
+"masse": 28.08,
+"famille": "Métalloïde",
+},
+"p": {
+"nom": "Phosphore",
+"num": 15,
+"masse": 30.97,
+"famille": "Non-métal",
+},
+"s": {"nom": "Soufre", "num": 16, "masse": 32.06, "famille": "Non-métal"},
+"cl": {"nom": "Chlore", "num": 17, "masse": 35.45, "famille": "Halogène"},
+"ar": {
+"nom": "Argon",
+"num": 18,
+"masse": 39.94,
+"famille": "Gaz noble",
+},
+"k": {
+"nom": "Potassium",
+"num": 19,
+"masse": 39.09,
+"famille": "Métal alcalin",
+},
+"ca": {
+"nom": "Calcium",
+"num": 20,
+"masse": 40.07,
+"famille": "Alcalino-terreux",
+},
+"sc": {
+"nom": "Scandium",
+"num": 21,
+"masse": 44.95,
+"famille": "Transition",
+},
+"ti": {
+"nom": "Titane",
+"num": 22,
+"masse": 47.86,
+"famille": "Transition",
+},
+"v": {
+"nom": "Vanadium",
+"num": 23,
+"masse": 50.94,
+"famille": "Transition",
+},
+"cr": {
+"nom": "Chrome",
+"num": 24,
+"masse": 52.00,
+"famille": "Transition",
+},
+"mn": {
+"nom": "Manganèse",
+"num": 25,
+"masse": 54.93,
+"famille": "Transition",
+},
+"fe": {"nom": "Fer", "num": 26, "masse": 55.84, "famille": "Transition"},
+"co": {
+"nom": "Cobalt",
+"num": 27,
+"masse": 58.93,
+"famille": "Transition",
+},
+"ni": {
+"nom": "Nickel",
+"num": 28,
+"masse": 58.69,
+"famille": "Transition",
+},
+"cu": {
+"nom": "Cuivre",
+"num": 29,
+"masse": 63.54,
+"famille": "Transition",
+},
+"zn": {"nom": "Zinc", "num": 30, "masse": 65.38, "famille": "Transition"},
+"ga": {
+"nom": "Gallium",
+"num": 31,
+"masse": 69.72,
+"famille": "Métal pauvre",
+},
+"ge": {
+"nom": "Germanium",
+"num": 32,
+"masse": 72.63,
+"famille": "Métalloïde",
+},
+"as": {
+"nom": "Arsenic",
+"num": 33,
+"masse": 74.92,
+"famille": "Métalloïde",
+},
+"se": {
+"nom": "Sélénium",
+"num": 34,
+"masse": 78.97,
+"famille": "Non-métal",
+},
+"br": {"nom": "Brome", "num": 35, "masse": 79.90, "famille": "Halogène"},
+"kr": {
+"nom": "Krypton",
+"num": 36,
+"masse": 83.80,
+"famille": "Gaz noble",
+},
+"rb": {
+"nom": "Rubidium",
+"num": 37,
+"masse": 85.46,
+"famille": "Métal alcalin",
+},
+"sr": {
+"nom": "Strontium",
+"num": 38,
+"masse": 87.62,
+"famille": "Alcalino-terreux",
+},
+"y": {"nom": "Yttrium", "num": 39, "masse": 88.91, "famille": "Transition"},
+"zr": {
+"nom": "Zirconium",
+"num": 40,
+"masse": 91.22,
+"famille": "Transition",
+},
+"nb": {"nom": "Niobium", "num": 41, "masse": 92.91, "famille": "Transition"},
+"mo": {
+"nom": "Molybdène",
+"num": 42,
+"masse": 95.95,
+"famille": "Transition",
+},
+"tc": {
+"nom": "Technétium",
+"num": 43,
+"masse": 98.00,
+"famille": "Transition",
+},
+"ru": {
+"nom": "Ruthénium",
+"num": 44,
+"masse": 101.07,
+"famille": "Transition",
+},
+"rh": {"nom": "Rhodium", "num": 45, "masse": 102.91, "famille": "Transition"},
+"pd": {
+"nom": "Palladium",
+"num": 46,
+"masse": 106.42,
+"famille": "Transition",
+},
+"ag": {"nom": "Argent", "num": 47, "masse": 107.87, "famille": "Transition"},
+"cd": {
+"nom": "Cadmium",
+"num": 48,
+"masse": 112.41,
+"famille": "Transition",
+},
+"in": {
+"nom": "Indium",
+"num": 49,
+"masse": 114.82,
+"famille": "Métal pauvre",
+},
+"sn": {"nom": "Étain", "num": 50, "masse": 118.71, "famille": "Métal pauvre"},
+"sb": {
+"nom": "Antimoine",
+"num": 51,
+"masse": 121.76,
+"famille": "Métalloïde",
+},
+"te": {
+"nom": "Tellure",
+"num": 52,
+"masse": 127.60,
+"famille": "Métalloïde",
+},
+"i": {"nom": "Iode", "num": 53, "masse": 126.90, "famille": "Halogène"},
+"xe": {
+"nom": "Xénon",
+"num": 54,
+"masse": 131.29,
+"famille": "Gaz noble",
+},
+"cs": {
+"nom": "Césium",
+"num": 55,
+"masse": 132.91,
+"famille": "Métal alcalin",
+},
+"ba": {
+"nom": "Baryum",
+"num": 56,
+"masse": 137.33,
+"famille": "Alcalino-terreux",
+},
+"la": {
+"nom": "Lanthane",
+"num": 57,
+"masse": 138.91,
+"famille": "Lanthanide",
+},
+"ce": {"nom": "Cérium", "num": 58, "masse": 140.12, "famille": "Lanthanide"},
+"pr": {
+"nom": "Praséodyme",
+"num": 59,
+"masse": 140.91,
+"famille": "Lanthanide",
+},
+"nd": {
+"nom": "Néodyme",
+"num": 60,
+"masse": 144.24,
+"famille": "Lanthanide",
+},
+"pm": {
+"nom": "Prométhéum",
+"num": 61,
+"masse": 145.00,
+"famille": "Lanthanide",
+},
+"sm": {
+"nom": "Samarium",
+"num": 62,
+"masse": 150.36,
+"famille": "Lanthanide",
+},
+"eu": {"nom": "Europium", "num": 63, "masse": 151.96, "famille": "Lanthanide"},
+"gd": {
+"nom": "Gadolinium",
+"num": 64,
+"masse": 157.25,
+"famille": "Lanthanide",
+},
+"tb": {"nom": "Terbium", "num": 65, "masse": 158.93, "famille": "Lanthanide"},
+"dy": {
+"nom": "Dysprosium",
+"num": 66,
+"masse": 162.50,
+"famille": "Lanthanide",
+},
+"ho": {"nom": "Holmium", "num": 67, "masse": 164.93, "famille": "Lanthanide"},
+"er": {"nom": "Erbium", "num": 68, "masse": 167.26, "famille": "Lanthanide"},
+"tm": {"nom": "Thulium", "num": 69, "masse": 168.93, "famille": "Lanthanide"},
+"yb": {
+"nom": "Ytterbium",
+"num": 70,
+"masse": 173.05,
+"famille": "Lanthanide",
+},
+"lu": {"nom": "Lutécium", "num": 71, "masse": 174.97, "famille": "Lanthanide"},
+"hf": {
+"nom": "Hafnium",
+"num": 72,
+"masse": 178.49,
+"famille": "Transition",
+},
+"ta": {"nom": "Tantale", "num": 73, "masse": 180.95, "famille": "Transition"},
+"w": {"nom": "Tungstène", "num": 74, "masse": 183.84, "famille": "Transition"},
+"re": {"nom": "Rhénium", "num": 75, "masse": 186.21, "famille": "Transition"},
+"os": {"nom": "Osmium", "num": 76, "masse": 190.23, "famille": "Transition"},
+"ir": {"nom": "Iridium", "num": 77, "masse": 192.22, "famille": "Transition"},
+"pt": {"nom": "Platine", "num": 78, "masse": 195.08, "famille": "Transition"},
+"au": {"nom": "Or", "num": 79, "masse": 196.97, "famille": "Transition"},
+"hg": {"nom": "Mercure", "num": 80, "masse": 200.59, "famille": "Transition"},
+"tl": {
+"nom": "Thallium",
+"num": 81,
+"masse": 204.38,
+"famille": "Métal pauvre",
+},
+"pb": {"nom": "Plomb", "num": 82, "masse": 207.2, "famille": "Métal pauvre"},
+"bi": {
+"nom": "Bismuth",
+"num": 83,
+"masse": 208.98,
+"famille": "Métal pauvre",
+},
+"po": {
+"nom": "Polonium",
+"num": 84,
+"masse": 209.00,
+"famille": "Métalloïde",
+},
+"at": {"nom": "Astate", "num": 85, "masse": 210.00, "famille": "Halogène"},
+"rn": {
+"nom": "Radon",
+"num": 86,
+"masse": 222.00,
+"famille": "Gaz noble",
+},
+"fr": {
+"nom": "Francium",
+"num": 87,
+"masse": 223.00,
+"famille": "Métal alcalin",
+},
+"ra": {
+"nom": "Radium",
+"num": 88,
+"masse": 226.00,
+"famille": "Alcalino-terreux",
+},
+"ac": {"nom": "Actinium", "num": 89, "masse": 227.00, "famille": "Actinide"},
+"th": {"nom": "Thorium", "num": 90, "masse": 232.04, "famille": "Actinide"},
+"pa": {
+"nom": "Protactinium",
+"num": 91,
+"masse": 231.04,
+"famille": "Actinide",
+},
+"u": {"nom": "Uranium", "num": 92, "masse": 238.03, "famille": "Actinide"},
+"np": {
+"nom": "Neptunium",
+"num": 93,
+"masse": 237.00,
+"famille": "Actinide",
+},
+"pu": {
+"nom": "Plutonium",
+"num": 94,
+"masse": 244.00,
+"famille": "Actinide",
+},
+"am": {
+"nom": "Américium",
+"num": 95,
+"masse": 243.00,
+"famille": "Actinide",
+},
+"cm": {"nom": "Curium", "num": 96, "masse": 247.00, "famille": "Actinide"},
+"bk": {
+"nom": "Berkélium",
+"num": 97,
+"masse": 247.00,
+"famille": "Actinide",
+},
+"cf": {
+"nom": "Californium",
+"num": 98,
+"masse": 251.00,
+"famille": "Actinide",
+},
+"es": {
+"nom": "Einsteinium",
+"num": 99,
+"masse": 252.00,
+"famille": "Actinide",
+},
+"fm": {"nom": "Fermium", "num": 100, "masse": 257.00, "famille": "Actinide"},
+"md": {
+"nom": "Mendélévium",
+"num": 101,
+"masse": 258.00,
+"famille": "Actinide",
+},
+"no": {"nom": "Nobélium", "num": 102, "masse": 259.00, "famille": "Actinide"},
+"lr": {
+"nom": "Lawrencium",
+"num": 103,
+"masse": 266.00,
+"famille": "Actinide",
+},
+"rf": {
+"nom": "Rutherfordium",
+"num": 104,
+"masse": 267.00,
+"famille": "Transition",
+},
+"db": {"nom": "Dubnium", "num": 105, "masse": 268.00, "famille": "Transition"},
+"sg": {
+"nom": "Seaborgium",
+"num": 106,
+"masse": 269.00,
+"famille": "Transition",
+},
+"bh": {"nom": "Bohrium", "num": 107, "masse": 270.00, "famille": "Transition"},
+"hs": {"nom": "Hassium", "num": 108, "masse": 277.00, "famille": "Transition"},
+"mt": {
+"nom": "Meitnérium",
+"num": 109,
+"masse": 278.00,
+"famille": "Transition",
+},
+"ds": {
+"nom": "Darmstadtium",
+"num": 110,
+"masse": 281.00,
+"famille": "Transition",
+},
+"rg": {
+"nom": "Roentgenium",
+"num": 111,
+"masse": 282.00,
+"famille": "Transition",
+},
+"cn": {
+"nom": "Copernicium",
+"num": 112,
+"masse": 285.00,
+"famille": "Transition",
+},
+"nh": {
+"nom": "Nihonium",
+"num": 113,
+"masse": 286.00,
+"famille": "Métal pauvre",
+},
+"fl": {
+"nom": "Flerovium",
+"num": 114,
+"masse": 289.00,
+"famille": "Métal pauvre",
+},
+"mc": {
+"nom": "Moscovium",
+"num": 115,
+"masse": 290.00,
+"famille": "Métal pauvre",
+},
+"lv": {
+"nom": "Livermorium",
+"num": 116,
+"masse": 293.00,
+"famille": "Métal pauvre",
+},
+"ts": {"nom": "Tenesse", "num": 117, "masse": 294.00, "famille": "Halogène"},
+"og": {
+"nom": "Oganesson",
+"num": 118,
+"masse": 294.00,
+"famille": "Gaz noble",
+},
+}
+TABLEAU.update(elements_complets)
+
+2. BANQUE HISTORIQUE COMPLÈTE
+jalons_complets = [
+(
+"-585: Thalès de Milet prédit une éclipse solaire totale, marquant"
+" l'aube de la science."
+),
+(
+"-300: Euclide publie ses 'Éléments', posant la structure axiomatique"
+" géométrique."
+),
+(
+"250: Archimède formule les principes d'hydrostatique et le calcul"
+" d'exhaustion."
+),
+(
+"830: Al-Khwârizmî formalise les méthodes algébriques et l'algorithmique"
+" fondamentale."
+),
+(
+"1543: Nicolas Copernic publie son traité héliocentrique De"
+" revolutionibus."
+),
+(
+"1609: Johannes Kepler énonce les deux premières lois du mouvement"
+" planétaire."
+),
+(
+"1610: Galilée pointe sa lunette vers les astres et découvre les"
+" lunes de Jupiter."
+),
+(
+"1637: René Descartes introduit la géométrie analytique reliant"
+" algèbre et géométrie."
+),
+(
+"1687: Isaac Newton publie les Principia Mathematica et fonde la"
+" dynamique."
+),
+(
+"1772: Antoine Lavoisier démontre la conservation de la masse lors"
+" des combustions."
+),
+(
+"1798: Henry Cavendish mesure expérimentalement la constante de"
+" gravitation G."
+),
+(
+"1801: Thomas Young met en évidence la nature interférentielle et"
+" ondulatoire de la lumière."
+),
+(
+"1820: Hans Christian Ørsted découvre le lien direct entre courant"
+" électrique et magnétisme."
+),
+(
+"1831: Michael Faraday met en évidence l'induction"
+" électromagnétique."
+),
+(
+"1869: Dmitri Mendeleïev structure le tableau périodique des"
+" éléments chimiques."
+),
+(
+"1887: Heinrich Hertz prouve l'existence des ondes électromagnétiques"
+" prédites par Maxwell."
+),
+(
+"1895: Wilhelm Röntgen découvre par inadvertance le rayonnement des"
+" rayons X."
+),
+(
+"1896: Henri Becquerel met en évidence la radioactivité naturelle"
+" de l'uranium."
+),
+(
+"1897: J.J. Thomson isole l'électron, identifiant la première"
+" particule subatomique."
+),
+(
+"1900: Max Planck introduit le quantum d'action pour résoudre le"
+" problème du corps noir."
+),
+(
+"1905: Albert Einstein révolutionne la physique avec la relativité"
+" restreinte et les quanta."
+),
+(
+"1911: Ernest Rutherford découvre l'existence du noyau atomique"
+" dense."
+),
+(
+"1913: Niels Bohr propose le modèle quantifié stationnaire de"
+" l'atome d'hydrogène."
+),
+(
+"1915: Albert Einstein finalise la théorie géométrique de la"
+" gravitation : la relativité générale."
+),
+(
+"1924: Louis de Broglie formule l'hypothèse de la dualité"
+" onde-particule pour la matière."
+),
+(
+"1926: Erwin Schrödinger pose l'équation d'onde fondamentale de la"
+" mécanique quantique."
+),
+(
+"1927: Werner Heisenberg énonce le principe fondamental"
+" d'incertitude."
+),
+(
+"1932: James Chadwick découvre le neutron, parachevant le modèle du"
+" noyau."
+),
+(
+"1938: Otto Hahn et Fritz Strassmann découvrent la fission"
+" nucléaire de l'uranium."
+),
+(
+"1953: James Watson, Francis Crick et Rosalind Franklin élucident la"
+" structure en double hélice de l'ADN."
+),
+(
+"1964: Murray Gell-Mann postule l'existence des quarks constitutifs"
+" des hadrons."
+),
+(
+"2012: Le CERN officialise la découverte expérimentale du boson de"
+" Higgs."
+),
+]
+for h in jalons_complets:
+if h not in HISTOIRE:
+HISTOIRE.append(h)
+
+3. BANQUE DES SAVANTS COMPLÈTE
+savants_complets = {
+"archimede": {
+"nom": "Archimède",
+"contribution": "Poussée hydrostatique et quadrature géométrique",
+"siecle": "IIIe siècle av. J.-C.",
+},
+"euclide": {
+"nom": "Euclide",
+"contribution": "Axiomatique géométrique et rigueur formelle",
+"siecle": "IIIe siècle av. J.-C.",
+},
+"khwarizmi": {
+"nom": "Al-Khwârizmî",
+"contribution": "Fondation de l'algèbre et des méthodes algorithmiques",
+"siecle": "IXe siècle",
+},
+"copernic": {
+"nom": "Nicolas Copernic",
+"contribution": "Modèle cosmologique héliocentrique",
+"siecle": "XVIe siècle",
+},
+"galilee": {
+"nom": "Galilée",
+"contribution": "Cinématique du point matériel et télescopes",
+"siecle": "XVIIe siècle",
+},
+"kepler": {
+"nom": "Johannes Kepler",
+"contribution": "Lois géométriques des orbites planétaires",
+"siecle": "XVIIe siècle",
+},
+"descartes": {
+"nom": "René Descartes",
+"contribution": "Géométrie analytique et rationalisme cartésien",
+"siecle": "XVIIe siècle",
+},
+"newton": {
+"nom": "Isaac Newton",
+"contribution": "Lois du mouvement, gravitation et calcul infinitésimal",
+"siecle": "XVIIe-XVIIIe",
+},
+"leibniz": {
+"nom": "Gottfried Wilhelm Leibniz",
+"contribution": "Calcul différentiel et intégral, logique binaire",
+"siecle": "XVIIe-XVIIIe",
+},
+"euler": {
+"nom": "Leonhard Euler",
+"contribution": "Analyse mathématique, fonctions et identité d'Euler",
+"siecle": "XVIIIe siècle",
+},
+"lavoisier": {
+"nom": "Antoine Lavoisier",
+"contribution": "Loi de conservation des masses et nomenclature chimique",
+"siecle": "XVIIIe siècle",
+},
+"fourier": {
+"nom": "Joseph Fourier",
+"contribution": "Décomposition spectrale en séries trigonométriques",
+"siecle": "XIXe siècle",
+},
+"ampere": {
+"nom": "André-Marie Ampère",
+"contribution": "Fondements de l'électrodynamique et des forces de courant",
+"siecle": "XIXe siècle",
+},
+"gauss": {
+"nom": "Carl Friedrich Gauss",
+"contribution": "Théorie des nombres et théorème de flux électrostatique",
+"siecle": "XIXe siècle",
+},
+"faraday": {
+"nom": "Michael Faraday",
+"contribution": "Induction électromagnétique et lignes de champ",
+"siecle": "XIXe siècle",
+},
+"mendeleiev": {
+"nom": "Dmitri Mendeleïev",
+"contribution": "Classification périodique prédictive des éléments",
+"siecle": "XIXe siècle",
+},
+"maxwell": {
+"nom": "James Clerk Maxwell",
+"contribution": "Unification de l'électromagnétisme en quatre équations",
+"siecle": "XIXe siècle",
+},
+"boltzmann": {
+"nom": "Ludwig Boltzmann",
+"contribution": "Interprétation statistique de l'entropie physique",
+"siecle": "XIXe siècle",
+},
+"planck": {
+"nom": "Max Planck",
+"contribution": "Quantification de l'énergie et constante h",
+"siecle": "XXe siècle",
+},
+"einstein": {
+"nom": "Albert Einstein",
+"contribution": "Théories de la relativité restreinte et générale",
+"siecle": "XXe siècle",
+},
+"bohr": {
+"nom": "Niels Bohr",
+"contribution": "Modèle atomique quantique des orbites stationnaires",
+"siecle": "XXe siècle",
+},
+"schrodinger": {
+"nom": "Erwin Schrödinger",
+"contribution": "Équation d'onde fondamentale en mécanique quantique",
+"siecle": "XXe siècle",
+},
+"heisenberg": {
+"nom": "Werner Heisenberg",
+"contribution": "Principe d'incertitude et mécanique matricielle",
+"siecle": "XXe siècle",
+},
+"dirac": {
+"nom": "Paul Dirac",
+"contribution": "Équation relativiste de l'électron et antimatière",
+"siecle": "XXe siècle",
+},
+}
+SAVANTS.update(savants_complets)
+
+4. MODULE DE PHYSIQUE QUANTIQUE
+quantique_base = {
+"planck_einstein": {
+"nom": "Relation de Planck-Einstein",
+"formule": "E = h * nu",
+"description": (
+"L'énergie d'un photon est proportionnelle à sa fréquence."
+),
+},
+"de_broglie": {
+"nom": "Longueur d'onde de De Broglie",
+"formule": "lambda = h / p",
+"description": "Tout corps en mouvement possède une nature ondulatoire associée.",
+},
+"heisenberg_incertitude": {
+"nom": "Principe d'incertitude de Heisenberg",
+"formule": "delta_x * delta_p >= hbar / 2",
+"description": (
+"Impossibilité de connaître simultanément position et impulsion"
+" exactes."
+),
+},
+"schrodinger_eq": {
+"nom": "Équation de Schrödinger indépendante du temps",
+"formule": "H * psi = E * psi",
+"description": (
+"Équation maîtresse décrivant les états stationnaires quantiques."
+),
+},
+}
+QUANTIQUE.update(quantique_base)
+
+5. MODULE DE THERMODYNAMIQUE
+thermo_base = {
+"gaz_parfait": {
+"nom": "Loi des gaz parfaits",
+"formule": "P * V = n * R * T",
+"description": (
+"Relie macroscopiquement pression, volume, température et"
+" quantité."
+),
+},
+"premier_principe": {
+"nom": "Premier Principe de la Thermodynamique",
+"formule": "delta_U = W + Q",
+"description": "Conservation stricte de l'énergie interne d'un système fermé.",
+},
+"second_principe": {
+"nom": "Deuxième Principe (Entropie)",
+"formule": "delta_S >= 0",
+"description": (
+"L'entropie d'un système isolé ne peut qu'augmenter ou rester"
+" constante."
+),
+},
+"boltzmann_entropie": {
+"nom": "Formule statistique de Boltzmann",
+"formule": "S = k_b * ln(W)",
+"description": (
+"Lien direct entre désordre macroscopique et nombre de"
+" microétats."
+),
+},
+}
+THERMODYNAMIQUE.update(thermo_base)
+
+6. MODULE D'ÉLECTROMAGNÉTISME
+electromag_base = {
+"maxwell_gauss": {
+"nom": "Maxwell-Gauss (Électrostatique)",
+"formule": "div(E) = rho / epsilon_0",
+"description": (
+"Les charges électriques sont la source du champ électrique."
+),
+},
+"maxwell_faraday": {
+"nom": "Maxwell-Faraday (Induction)",
+"formule": "rot(E) = -dB / dt",
+"description": (
+"Un champ magnétique variable engendre un champ électrique en"
+" rotation."
+),
+},
+"force_lorentz": {
+"nom": "Force de Lorentz",
+"formule": "F = q * (E + v ^ B)",
+"description": (
+"Force totale subie par une charge en mouvement dans des"
+" champs."
+),
+},
+}
+ELECTROMAGNETISME.update(electromag_base)
+
+SYSTÈME DE BADGES
+BADGES = {
+"novice": "🧪 Apprenti Chercheur",
+"expert": "🎓 Esprit Académique Avancé",
+"maitre": "👑 Grand Maître des Sciences Physiques",
+}
+
+===== MOTEUR D'INTERACTION ET LOGIQUE DU BOT =====
+def verifier_badges():
+global user_stats
+score = user_stats.get("score_actuel", 0)
+total = user_stats.get("total_questions", 1)
+
+if (
+"novice" not in user_stats["badges_debloques"]
+and user_stats["parties_jouees"] > 0
+):
+user_stats["badges_debloques"].append("novice")
+if (
+total > 0
+and (score / total) >= 0.75
+and "expert" not in user_stats["badges_debloques"]
+):
+user_stats["badges_debloques"].append("expert")
+if (
+total > 0
+and score == total
+and total >= 5
+and "maitre" not in user_stats["badges_debloques"]
+):
+user_stats["badges_debloques"].append("maitre")
+
+def repondre(msg):
+global quiz_actif, mode_interro, pool_questions_restantes, objectif_interro, user_stats
+msg = msg.lower().strip()
+
+if quiz_actif:
+try:
+user_stats["total_questions"] += 1
+reponse_correcte = False
+if msg == quiz_actif["reponse"] or msg in quiz_actif.get(
+"acceptables", []
+):
+reponse_correcte = True
+elif "bonne_lettre" in quiz_actif and msg == quiz_actif["bonne_lettre"]:
+reponse_correcte = True
+
+  if reponse_correcte:
+    user_stats["score_actuel"] += 1
+    rep = f"✅ **Correct !** {quiz_actif['explication']}"
+  else:
+    rep = (
+        f"❌ **Faux !** C'était : **{quiz_actif['reponse']}**\n"
+        f"{quiz_actif['explication']}"
+    )
+  quiz_actif = None
+
+  if mode_interro and user_stats["total_questions"] < objectif_interro:
+    return rep + "\n\n" + generer_question_totale()
+  elif mode_interro:
+    note = (user_stats["score_actuel"] * 20) // objectif_interro
+    if user_stats["score_actuel"] > user_stats["meilleur_score"]:
+      user_stats["meilleur_score"] = user_stats["score_actuel"]
+
+    user_stats["parties_jouees"] += 1
+    verifier_badges()
+    sauvegarder()
+
+    mode_interro = False
+    rep_final = (
+        f"{rep}\n\n🏁 **BILAN DE L'INTERROGATION ABSOLUE**\nScore :"
+        f" {user_stats['score_actuel']}/{user_stats['total_questions']}\nNote"
+        f" équivalente : {note}/20\n🏆 Record Personnel :"
+        f" {user_stats['meilleur_score']}"
+    )
+    user_stats["score_actuel"] = 0
+    user_stats["total_questions"] = 0
+    pool_questions_restantes = []
+    return rep_final
+  return rep
+except:
+  return "⚠️ Entrez une réponse valide."
+COMMANDES PRINCIPALES
+if msg in ["salut", "help", "aide"]:
+return """👑 PROFBOT V14 - MONSTRE SCIENTIFIQUE ABSOLU
+
+element [symbole] -> Fiche complète des 118 éléments (ex: element u)
+
+quantique [cle] -> Loi de physique quantique (ex: quantique de_broglie)
+
+thermo [cle] -> Loi thermodynamique (ex: thermo premier_principe)
+
+em [cle] -> Loi d'électromagnétisme (ex: em force_lorentz)
+
+histoire -> Chronique historique scientifique aléatoire
+
+savant -> Contribution d'un chercheur majeur
+
+kahoot -> 1 QCM multi-domaines sans répétition
+
+interro [nombre] -> Lancer un test complet (ex: interro 30)
+
+stats -> Afficher vos statistiques et badges
+
+quit -> Sauvegarder et quitter"""
+
+if msg == "stats":
+badges_str = (
+", ".join(user_stats["badges_debloques"])
+if user_stats["badges_debloques"]
+else "Aucun badge"
+)
+return (
+f"📊 STATISTIQUES DE RECHERCHE\n- Parties jouées :"
+f" {user_stats['parties_jouees']}\n- Meilleur score :"
+f" {user_stats['meilleur_score']}\n- Badges débloqués : {badges_str}"
+)
+
+if msg.startswith("quantique"):
+parts = msg.split()
+if len(parts) < 2:
+return "⚠️ Précise une clé (ex: quantique heisenberg_incertitude)."
+cle = parts[1]
+if cle in QUANTIQUE:
+item = QUANTIQUE[cle]
+return f"⚛️ QUANTIQUE : {item['nom']}\n- Formule : {item['formule']}\n- Description : {item['description']}"
+return "❌ Concept quantique introuvable."
+
+if msg.startswith("thermo"):
+parts = msg.split()
+if len(parts) < 2:
+return "⚠️ Précise une clé (ex: thermo gaz_parfait)."
+cle = parts[1]
+if cle in THERMODYNAMIQUE:
+item = THERMODYNAMIQUE[cle]
+return f"🔥 THERMODYNAMIQUE : {item['nom']}\n- Formule : {item['formule']}\n- Description : {item['description']}"
+return "❌ Loi thermodynamique introuvable."
+
+if msg.startswith("em"):
+parts = msg.split()
+if len(parts) < 2:
+return "⚠️ Précise une clé (ex: em force_lorentz)."
+cle = parts[1]
+if cle in ELECTROMAGNETISME:
+item = ELECTROMAGNETISME[cle]
+return f"⚡ ÉLECTROMAGNÉTISME : {item['nom']}\n- Formule : {item['formule']}\n- Description : {item['description']}"
+return "❌ Loi électromagnétique introuvable."
+
+if msg == "histoire":
+h_choisie = random.choice(HISTOIRE)
+return f"📜 Chronique Historique & Scientifique :\n{h_choisie}"
+
+if msg == "savant":
+s_cle = random.choice(list(SAVANTS.keys()))
+s = SAVANTS[s_cle]
+return (
+f"🧠 Contribution de Chercheur : {s['nom']} ({s['siecle']})\n- Apport"
+f" : {s['contribution']}"
+)
+
+if msg.startswith("element"):
+parts = msg.split()
+if len(parts) < 2:
+return "⚠️ Tape : element [symbole] (ex: element h ou element og)"
+cle = parts[1]
+if cle in TABLEAU:
+v = TABLEAU[cle]
+return f"🧪 {v['nom']} (Symbole : {cle.upper()})\n- Numéro Z : {v['num']}\n- Masse : {v['masse']} g/mol\n- Famille : {v['famille']}"
+return "❌ Élément introuvable dans le tableau périodique intégral."
+
+if msg == "kahoot":
+return generer_question_totale()
+
+if msg.startswith("interro"):
+parts = msg.split()
+if len(parts) > 1 and parts[1].isdigit():
+objectif_interro = int(parts[1])
+else:
+objectif_interro = 25
+
+mode_interro = True
+user_stats["score_actuel"] = 0
+user_stats["total_questions"] = 0
+pool_questions_restantes = []
+
+Construction du pool exhaustif sans doublon
+for k in TABLEAU.keys():
+pool_questions_restantes.append((k, "elem_num"))
+for s in SAVANTS.keys():
+pool_questions_restantes.append((s, "savant_contrib"))
+for q in QUANTIQUE.keys():
+pool_questions_restantes.append((q, "quantique_formule"))
+for t in THERMODYNAMIQUE.keys():
+pool_questions_restantes.append((t, "thermo_formule"))
+
+random.shuffle(pool_questions_restantes)
+return (
+f"🏁 INTERROGATION TOTALE LANCÉE ({objectif_interro} questions sans"
+f" doublon)\nC'est parti !\n\n"
++ generer_question_totale()
+)
+
+if msg == "quit":
+sauvegarder()
+return "quit"
+
+return "🤖 Commande non reconnue. Tape salut pour afficher le menu."
+
+===== GÉNÉRATEUR DE QCM MULTI-DOMAINES =====
+def generer_question_totale():
+global quiz_actif, pool_questions_restantes, mode_interro
+
+if mode_interro and pool_questions_restantes:
+sujet_cle, type_q = pool_questions_restantes.pop()
+else:
+type_q = random.choice(
+["elem_num", "savant_contrib", "quantique_formule", "thermo_formule"]
+)
+if type_q == "elem_num":
+sujet_cle = random.choice(list(TABLEAU.keys()))
+elif type_q == "savant_contrib":
+sujet_cle = random.choice(list(SAVANTS.keys()))
+elif type_q == "quantique_formule":
+sujet_cle = random.choice(list(QUANTIQUE.keys()))
+else:
+sujet_cle = random.choice(list(THERMODYNAMIQUE.keys()))
+
+if type_q == "elem_num":
+elem = TABLEAU[sujet_cle]
+question = f"❓ [Chimie] Quel est le numéro atomique (Z) de l'élément {elem['nom']} ?"
+reponse_correcte = str(elem["num"])
+faux1 = str(max(1, elem["num"] + 3))
+faux2 = str(max(1, elem["num"] - 2))
+faux3 = str(elem["num"] + 5)
+options = [reponse_correcte, faux1, faux2, faux3]
+random.shuffle(options)
+explication = f"L'élément {elem['nom']} possède le numéro atomique {elem['num']}."
+
+elif type_q == "savant_contrib":
+s = SAVANTS[sujet_cle]
+question = f"❓ [Histoire] À quel savant attribue-t-on cette contribution :\n*"{s['contribution']}"*"
+reponse_correcte = s["nom"]
+tous_noms = [sav["nom"] for sav in SAVANTS.values()]
+mauvais = random.sample(
+[n for n in tous_noms if n.lower() != reponse_correcte.lower()], 3
+)
+options = mauvais + [reponse_correcte]
+random.shuffle(options)
+explication = f"Il s'agit de {s['nom']} ({s['siecle']})."
+
+elif type_q == "quantique_formule":
+item = QUANTIQUE[sujet_cle]
+question = (
+f"❓ [Quantique] Quelle est l'expression associée à :\n*{item['nom']}* ?"
+)
+reponse_correcte = item["formule"]
+tous_val = [v["formule"] for v in QUANTIQUE.values()]
+mauvais = [v for v in tous_val if v != reponse_correcte][:3]
+options = mauvais + [reponse_correcte]
+random.shuffle(options)
+explication = f"La relation exacte est {item['formule']}."
+
+else:
+item = THERMODYNAMIQUE[sujet_cle]
+question = (
+f"❓ [Thermodynamique] Quelle est la relation associée à"
+f" :\n*{item['nom']}* ?"
+)
+reponse_correcte = item["formule"]
+tous_val = [v["formule"] for v in THERMODYNAMIQUE.values()]
+mauvais = [v for v in tous_val if v != reponse_correcte][:3]
+options = mauvais + [reponse_correcte]
+random.shuffle(options)
+explication = f"La relation associée est {item['formule']}."
+
+lettres = ["a", "b", "c", "d"]
+options_texte = ""
+bonne_lettre = ""
+
+for i, opt in enumerate(options[:4]):
+lettre = lettres[i]
+options_texte += f"\n {lettre.upper()}) {opt}"
+if str(opt).lower() == str(reponse_correcte).lower():
+bonne_lettre = lettre
+
+quiz_actif = {
+"reponse": str(reponse_correcte).lower(),
+"bonne_lettre": bonne_lettre,
+"explication": explication,
+"acceptables": [str(reponse_correcte).lower()],
+}
+
+return f"{question}\n{options_texte}\n\n👉 Tape la lettre (A, B, C, D) :"
+
+===== INITIALISATION =====
+initialiser_base_absolue()
+
+@app.route("/")
+def accueil():
+return "ProfBot V14 (Monstre Absolu - Physique & Chimie) en ligne !"
+
+@app.route("/chat", methods=["POST"])
+def chat():
+data = request.json
+message_recu = data.get("message", "")
+reponse_bot = repondre(message_recu)
+return jsonify({"reponse": reponse_bot})
+
+if name == "main":
+app.run(host="0.0.0.0", port=5000, debug=True)
