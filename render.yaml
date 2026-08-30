@@ -1,0 +1,9 @@
+service:
+  - type: web
+    name: profbot-web
+    env: python
+    runtime: python3.11
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn profbot:app --bind 0.0.0.0:$PORT
+    plan: free
